@@ -31,11 +31,11 @@ class ParallelWrapper(object):
     def __init__(self,
                  python_exe_fp=qiime_config['python_exe_fp'],
                  cluster_jobs_fp=qiime_config['cluster_jobs_fp'],
-                 jobs_to_start=qiime_config['jobs_to_start'],
+                 jobs_to_start=int(qiime_config['jobs_to_start']),
                  poller_fp=join(get_qiime_scripts_dir(),'poller.py'),
                  retain_temp_files=False,
                  suppress_polling=False,
-                 seconds_to_sleep=qiime_config['seconds_to_sleep']):
+                 seconds_to_sleep=int(qiime_config['seconds_to_sleep'])):
         """  """
         
         self._python_exe_fp = python_exe_fp
@@ -179,7 +179,7 @@ class ParallelWrapper(object):
                      job_prefix):
         """ Submit the jobs to the queue using cluster_jobs.py
         """
-        cmd = '%s -ms %s %s' % (self._cluster_jobs_fp, 
+        cmd = '%s -ms %s %s' % (self._cluster_jobs_fp,
                                 jobs_fp, 
                                 job_prefix)
         stdout, stderr, return_value = qiime_system_call(cmd)

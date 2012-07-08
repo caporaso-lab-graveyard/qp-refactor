@@ -12,8 +12,14 @@ __email__ = "gregcaporaso@gmail.com"
 __status__ = "Development"
 
 import signal
+from shutil import rmtree
+from glob import glob
+from os.path import exists, join
 from cogent.util.unit_test import TestCase, main
-from cogent.util.misc import remove_files
+from cogent.util.misc import remove_files, create_dir
+from qp.pick_otus_uclust_ref import PickOtusUclustRef
+from qiime.util import (get_qiime_temp_dir, 
+                        get_tmp_filename)
 
 ## The test case timing code included in this file is adapted from
 ## recipes provided at:
@@ -36,6 +42,44 @@ class PickOtusUclustRefTests(TestCase):
         self.files_to_remove = []
         self.dirs_to_remove = []
         
+        tmp_dir = get_qiime_temp_dir()
+        self.test_out = get_tmp_filename(tmp_dir=tmp_dir,
+                                         prefix='qiime_parallel_tests_',
+                                         suffix='',
+                                         result_constructor=str)
+        self.dirs_to_remove.append(self.test_out)
+        create_dir(self.test_out)
+        
+        self.refseqs1_fp = get_tmp_filename(tmp_dir=self.test_out,
+                                            prefix='qiime_refseqs',
+                                            suffix='.fasta')
+        refseqs1_f = open(self.refseqs1_fp,'w')
+        refseqs1_f.write(refseqs1)
+        refseqs1_f.close()
+        self.files_to_remove.append(self.refseqs1_fp)
+        
+        self.inseqs1_fp = get_tmp_filename(tmp_dir=self.test_out,
+                                            prefix='qiime_inseqs',
+                                            suffix='.fasta')
+        inseqs1_f = open(self.inseqs1_fp,'w')
+        inseqs1_f.write(inseqs1)
+        inseqs1_f.close()
+        self.files_to_remove.append(self.inseqs1_fp)
+        
+        self.params = {'refseqs_fp':self.refseqs1_fp,
+          'similarity':0.97,
+          'max_accepts':1,
+          'max_rejects':8,
+          'stepwords':8,
+          'word_length':8,
+          'stable_sort':True,
+          'enable_rev_strand_match':True,
+          'optimal_uclust':False,
+          'exact_uclust':False,
+          'stable_sort':True,
+          'save_uc_files':True
+        }
+        
         signal.signal(signal.SIGALRM, timeout)
         # set the 'alarm' to go off in allowed_seconds seconds
         signal.alarm(allowed_seconds_per_test)
@@ -54,6 +98,25 @@ class PickOtusUclustRefTests(TestCase):
     def test_pass(self):
         """just checking that alarm works as expected """
         pass
+    
+    def test_parallel_pick_otus_uclust_ref(self):
+        """ parallel_pick_otus_uclust_ref functions as expected """
+        app = PickOtusUclustRef()
+        r = app(self.inseqs1_fp,
+                self.test_out,
+                self.params,
+                job_prefix='PTEST',
+                poll_directly=True,
+                suppress_submit_jobs=False)
+        function_map_fp = glob(join(self.test_out,'*otus.txt'))[0]
+        i = 0
+        d = {}
+        for line in open(function_map_fp,'U'):
+            d[line.split()[0]] = None
+            i += 1
+        self.assertEqual(i,len(d))
+        
+        
 
 refseqs1 = """>r1
 CTGGGCCGTGTCTCAGTCCCAATGTGGCCGTTTACCCTCTCAGGCCGGCTACGCATCATCGCCTTGGTGGGCCGTTACCTCACCAACTAGCTAATGCGCCGCAGGTCCATCCATGTTCACGCCTTGATGGGCGCTTTAATATACTGAGCATGCGCTCTGTATACCTATCCGGTTTTAGCTACCGTTTCCAGCAGTTATCCCGGACACATGGGCTAGG

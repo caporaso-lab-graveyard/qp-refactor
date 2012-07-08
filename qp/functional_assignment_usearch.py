@@ -77,21 +77,26 @@ class FunctionAssignerUsearch(PickOtusUclustRef):
         f = open(merge_map_filepath,'w')
     
         otus_fps = []
+        log_fps = []
         failures_fps = []
     
         if not failures:
             out_filepaths = [
-             '%s/%s_fmap.txt' % (output_dir,input_file_basename)]
-            in_filepaths = [otus_fps]
+             '%s/%s_fmap.txt' % (output_dir,input_file_basename),
+             '%s/%s_fmap.log' % (output_dir,input_file_basename)]
+            in_filepaths = [otus_fps,log_fps]
         else:
             out_filepaths = [
              '%s/%s_fmap.txt' % (output_dir,input_file_basename),
+             '%s/%s_fmap.log' % (output_dir,input_file_basename),
              '%s/%s_failures.txt' % (output_dir,input_file_basename)]
-            in_filepaths = [otus_fps,failures_fps]
+            in_filepaths = [otus_fps,log_fps,failures_fps]
     
         for fp in job_result_filepaths:
             if fp.endswith('_fmap.txt'):
                 otus_fps.append(fp)
+            elif fp.endswith('_fmap.log'):
+                log_fps.append(fp)
             elif fp.endswith('_failures.txt'):
                 failures_fps.append(fp)
             else:

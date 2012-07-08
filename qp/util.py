@@ -139,6 +139,7 @@ class ParallelWrapper(object):
                 print '**Error occuring when calling the poller directly. '+\
                 'Jobs may have been submitted, but are not being polled.'
                 print str(e)
+                print poller_command
                 exit(-1)
         self.files_to_remove = []
 

@@ -27,9 +27,9 @@ class FunctionAssignerUsearch(PickOtusUclustRef):
                           command_suffix='; exit'):
         # Create basenames for each of the output files. These will be filled
         # in to create the full list of files created by all of the runs.
-        out_filenames = [job_prefix + '.%d_otus.log', 
-                         job_prefix + '.%d_otus.txt',
-                         job_prefix + '.%s_failures.txt']
+        out_filenames = [job_prefix + '.%d_fmap.txt',
+                         job_prefix + '.%s_failures.txt',
+                         job_prefix + '.%s.uc']
     
         # Create lists to store the results
         commands = []
@@ -46,7 +46,7 @@ class FunctionAssignerUsearch(PickOtusUclustRef):
             result_filepaths += current_result_filepaths
             
             command = \
-             '%s %s -i %s -r %s -m usearch -o %s --min_percent_id %s --max_accepts %d --max_rejects %d --queryalnfract %f --targetalnfract %f --min_aligned_percent %f --evalue %f %s %s' %\
+             '%s %s -i %s -r %s -m usearch -o %s --min_percent_id %s --max_accepts %d --max_rejects %d --queryalnfract %f --targetalnfract %f --min_aligned_percent %f --evalue %e %s %s' %\
              (command_prefix,
               self._script_name,
               fasta_fp,
@@ -65,4 +65,41 @@ class FunctionAssignerUsearch(PickOtusUclustRef):
             commands.append(command)
 
         return commands, result_filepaths
+
+    def _write_merge_map_file(self,
+                              input_file_basename,
+                              job_result_filepaths,
+                              output_dir,
+                              merge_map_filepath,
+                              failures=False):
+        """ 
+        """
+        f = open(merge_map_filepath,'w')
+    
+        otus_fps = []
+        failures_fps = []
+    
+        if not failures:
+            out_filepaths = [
+             '%s/%s_fmap.txt' % (output_dir,input_file_basename)]
+            in_filepaths = [otus_fps]
+        else:
+            out_filepaths = [
+             '%s/%s_fmap.txt' % (output_dir,input_file_basename),
+             '%s/%s_failures.txt' % (output_dir,input_file_basename)]
+            in_filepaths = [otus_fps,failures_fps]
+    
+        for fp in job_result_filepaths:
+            if fp.endswith('_fmap.txt'):
+                otus_fps.append(fp)
+            elif fp.endswith('_failures.txt'):
+                failures_fps.append(fp)
+            else:
+                pass
+    
+        for in_files, out_file in\
+         zip(in_filepaths,out_filepaths):
+            f.write('\t'.join(in_files + [out_file]))
+            f.write('\n')
+        f.close()
 

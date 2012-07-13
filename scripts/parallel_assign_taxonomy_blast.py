@@ -15,6 +15,7 @@ from os.path import join
 from qiime.util import (get_options_lookup, get_qiime_scripts_dir,
                         load_qiime_config, make_option,
                         parse_command_line_parameters)
+from qp.util import ParallelBlastTaxonomyAssigner
 
 qiime_config = load_qiime_config()
 options_lookup = get_options_lookup()
@@ -57,10 +58,6 @@ script_info['optional_options'] = [\
            type='string',help='full path to directory containing '+\
            'blastmat file [default: %default]',\
            default=qiime_config['blastmat_dir']),\
- make_option('-N','--assign_taxonomy_fp',action='store',\
-           type='existing_filepath',help='full path to '+\
-           'scripts/assign_taxonomy.py [default: %default]',\
-           default=join(get_qiime_scripts_dir(),'assign_taxonomy.py')),\
  options_lookup['jobs_to_start'],\
  options_lookup['poller_fp'],\
  options_lookup['retain_temp_files'],\

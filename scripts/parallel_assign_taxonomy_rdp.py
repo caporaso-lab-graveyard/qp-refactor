@@ -17,6 +17,7 @@ from os.path import join
 from qiime.util import (get_options_lookup, get_qiime_scripts_dir,
                         load_qiime_config, make_option,
                         parse_command_line_parameters)
+from qp.util import ParallelRdpTaxonomyAssigner
 
 qiime_config = load_qiime_config()
 options_lookup = get_options_lookup()
@@ -48,10 +49,6 @@ script_info['optional_options'] = [\
  make_option('-c','--confidence',action='store',\
           type='float',help='Minimum confidence to'+\
           ' record an assignment [default: %default]',default=0.80),\
- make_option('-N','--assign_taxonomy_fp',action='store',\
-           type='existing_filepath',help='full path to '+\
-           'scripts/assign_taxonomy.py [default: %default]',\
-           default=join(get_qiime_scripts_dir(),'assign_taxonomy.py')),\
  make_option('-t','--id_to_taxonomy_fp',action='store',\
            type='existing_filepath',help='full path to '+\
            'id_to_taxonomy mapping file [default: %s]' % default_id_to_taxonomy_fp,

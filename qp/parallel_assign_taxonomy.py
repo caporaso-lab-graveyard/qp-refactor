@@ -10,6 +10,7 @@ __maintainer__ = "Jai Ram Rideout"
 __email__ = "jai.rideout@gmail.com"
 __status__ = "Development"
 
+from cogent.app.formatdb import build_blast_db_from_fasta_path
 from qp.util import ParallelWrapper
 
 class ParallelTaxonomyAssigner(ParallelWrapper):
@@ -108,7 +109,7 @@ class ParallelBlastTaxonomyAssigner(ParallelTaxonomyAssigner):
             # Build the blast database from the reference_seqs_fp -- all procs
             # will then access one db rather than create one per proc.
             blast_db, db_files_to_remove = \
-                 build_blast_db_from_fasta_path(params['refseqs_fp'])
+                 build_blast_db_from_fasta_path(params['reference_seqs_fp'])
             self.files_to_remove += db_files_to_remove
             params['blast_db'] = blast_db
 

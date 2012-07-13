@@ -19,6 +19,15 @@ class ParallelAlignSeqsPyNast(ParallelWrapper):
     _job_prefix = 'ALIGN'
     _input_splitter = ParallelWrapper._split_fasta
 
+    def _precommand_initiation(self,input_fp,output_dir,params):
+        if not params['blast_db']:        
+            # Build the blast database from the reference_seqs_fp -- all procs
+            # will then access one db rather than create one per proc
+            blast_db, db_files_to_remove = \
+                 build_blast_db_from_fasta_path(params['template_aln_fp'])
+            self.files_to_remove += db_files_to_remove
+            params['blast_db'] = blast_db
+
     def _get_job_commands(self,
                           fasta_fps,
                           output_dir,

@@ -11,6 +11,7 @@ __maintainer__ = "Greg Caporaso"
 __email__ = "gregcaporaso@gmail.com"
 __status__ = "Development"
 
+from math import ceil
 from os.path import split, splitext, join
 from os import makedirs
 from subprocess import check_call, CalledProcessError
@@ -59,8 +60,14 @@ class ParallelWrapper(object):
     
         # split the input filepath into directory and filename, base filename and
         # extension for use in naming other files
-        input_dir, input_fn = split(input_fp)
-        input_file_basename, input_ext = splitext(input_fn)
+        try:
+            input_dir, input_fn = split(input_fp)
+            input_file_basename, input_ext = splitext(input_fn)
+        except AttributeError:
+            ## THIS IS AWFUL - SOME OF THE SCRIPTS PASS A LIST, SO THE
+            ## PREVIOUS BLOCK WON'T WORK... WHAT DO WE WANT TO DO?
+            input_dir, input_fn = split(input_fp[0])
+            input_file_basename, input_ext = splitext(input_fn)
         
         # Allow the user to override the default job_prefix (defined by the 
         # base classes)
@@ -81,11 +88,13 @@ class ParallelWrapper(object):
         
         # Split the input file into the individual job input files. Add the
         # individual job files to the files_to_remove list
-        input_fps = self._input_splitter(input_fp,
+        input_fps, remove_input_on_completion = self._input_splitter(
+                                         input_fp,
                                          self._jobs_to_start,
                                          job_prefix,
                                          working_dir)
-        self.files_to_remove += input_fps
+        if remove_input_on_completion:
+            self.files_to_remove += input_fps
         
         # Perform any method-specific setup (e.g., formatting a BLAST database)
         self._precommand_initiation(input_fp,output_dir,params)
@@ -212,7 +221,9 @@ class ParallelWrapper(object):
                               job_result_filepaths,
                               output_dir,
                               merge_map_filepath):
-        raise NotImplementedError, "Subclass must override _write_merge_map_file"
+        """ Create an empty file by default. Most subclasses will overwrite this 
+        """
+        open(merge_map_filepath,'w').close()
 
 
     def _get_job_commands(self,
@@ -312,6 +323,56 @@ class ParallelWrapper(object):
         open(jobs_fp,'w').write('\n'.join(commands))
         return jobs_fp
 
+    def _merge_to_n_commands(self,
+                             commands,
+                             n,
+                             delimiter=' ; ',
+                             command_prefix=None,
+                             command_suffix=None):
+        """ merge a list of commands into n commands 
+            
+            This is used by parallel wrappers such as alpha_diversity and 
+             beta_diversity which perform an operation on a collection of
+             input files (opposed to the scripts that split an input file
+             into the user-specified number of jobs).
+        
+        """
+        if n < 1:
+            raise ValueError, "number of commands (n) must be an integer >= 1"
+        
+        if command_prefix == None:
+            command_prefix = '/bin/bash ;'
+        else:
+            command_prefix = command_prefix
+        
+        if command_suffix == None:
+            command_suffix = '; exit'
+        else:
+            command_suffix = command_suffix
+        
+        result = []
+        commands_per_merged_command = int(ceil((len(commands)/n)))
+        # begin iterating through the commands
+        cmd_counter = 0
+        current_cmds = []
+        for command in commands:
+            current_cmds.append(command)
+            cmd_counter += 1
+        
+            if cmd_counter == commands_per_merged_command:
+                result.append(delimiter.join(current_cmds))
+                current_cmds = []
+                cmd_counter = 0
+            
+        if current_cmds:
+            result[-1] = delimiter.join([result[-1]] + current_cmds)
+    
+        for i,r in enumerate(result):
+            r = '%s %s %s' % (command_prefix, r, command_suffix)
+            result[i] = r.strip()
+    
+        return result
+    
     ####
     # General purpose _input_splitter functions
     ####
@@ -329,4 +390,12 @@ class ParallelWrapper(object):
           split_fasta(open(input_fp),num_seqs_per_file,\
           job_prefix,working_dir=output_dir)
         
-        return tmp_fasta_fps
+        return tmp_fasta_fps, True
+    
+    def _input_existing_filepaths(self,
+                                  input_fps,
+                                  jobs_to_start,
+                                  job_prefix,
+                                  output_dir):
+        return input_fps, False
+    

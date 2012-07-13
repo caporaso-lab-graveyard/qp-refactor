@@ -22,7 +22,7 @@ from qiime.util import (get_qiime_temp_dir,
 from qiime.test import initiate_timeout, disable_timeout
 from qiime.parse import parse_otu_map
 
-class ParallelPickOtusUclustRefTests(TestCase):
+class ParallelPickOtusTests(TestCase):
     
     def setUp(self):
         """ """
@@ -53,7 +53,25 @@ class ParallelPickOtusUclustRefTests(TestCase):
         inseqs1_f.close()
         self.files_to_remove.append(self.inseqs1_fp)
         
-        self.params = {'refseqs_fp':self.refseqs1_fp,
+        initiate_timeout(60)
+
+    
+    def tearDown(self):
+        """ """
+        disable_timeout()
+        remove_files(self.files_to_remove)
+        # remove directories last, so we don't get errors
+        # trying to remove files which may be in the directories
+        for d in self.dirs_to_remove:
+            if exists(d):
+                rmtree(d)
+
+class ParallelPickOtusUclustRefTests(ParallelPickOtusTests):
+
+    def test_parallel_pick_otus_uclust_ref(self):
+        """ parallel_pick_otus_uclust_ref functions as expected """
+        
+        params = {'refseqs_fp':self.refseqs1_fp,
           'similarity':0.97,
           'max_accepts':1,
           'max_rejects':8,
@@ -67,25 +85,10 @@ class ParallelPickOtusUclustRefTests(TestCase):
           'save_uc_files':True
         }
         
-        initiate_timeout(60)
-
-    
-    def tearDown(self):
-        """ """
-        disable_timeout()
-        remove_files(self.files_to_remove)
-        # remove directories last, so we don't get errors
-        # trying to remove files which may be in the directories
-        for d in self.dirs_to_remove:
-            if exists(d):
-                rmtree(d)
-    
-    def test_parallel_pick_otus_uclust_ref(self):
-        """ parallel_pick_otus_uclust_ref functions as expected """
         app = ParallelPickOtusUclustRef()
         r = app(self.inseqs1_fp,
                 self.test_out,
-                self.params,
+                params,
                 job_prefix='PTEST',
                 poll_directly=True,
                 suppress_submit_jobs=False)

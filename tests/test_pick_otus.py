@@ -16,7 +16,7 @@ from glob import glob
 from os.path import exists, join
 from cogent.util.unit_test import TestCase, main
 from cogent.util.misc import remove_files, create_dir
-from qp.pick_otus import ParallelPickOtusUclustRef
+from qp.pick_otus import ParallelPickOtusUclustRef, ParallelPickOtusBlast
 from qiime.util import (get_qiime_temp_dir, 
                         get_tmp_filename)
 from qiime.test import initiate_timeout, disable_timeout
@@ -90,6 +90,31 @@ class ParallelPickOtusUclustRefTests(ParallelPickOtusTests):
                 self.test_out,
                 params,
                 job_prefix='PTEST',
+                poll_directly=True,
+                suppress_submit_jobs=False)
+        otu_map_fp = glob(join(self.test_out,'*otus.txt'))[0]
+        otu_map = parse_otu_map(open(otu_map_fp,'U'))
+        # some basic sanity checks: at least one OTU per reference sequence
+        self.assertTrue(len(otu_map[0])>5)
+        self.assertEqual(set(otu_map[2]),set(['r1','r2','r3','r4','r5']))
+
+class ParallelPickOtusBlastTests(ParallelPickOtusTests):
+
+    def test_parallel_pick_otus_blast(self):
+        """ parallel_pick_otus_blast functions as expected """
+        
+        params = {'refseqs_fp':self.refseqs1_fp,
+          'similarity':0.97,
+          'blast_db':None,
+          'max_e_value':1e-10,
+          'min_aligned_percent':0.50
+        }
+        
+        app = ParallelPickOtusBlast()
+        r = app(self.inseqs1_fp,
+                self.test_out,
+                params,
+                job_prefix='BTEST',
                 poll_directly=True,
                 suppress_submit_jobs=False)
         otu_map_fp = glob(join(self.test_out,'*otus.txt'))[0]

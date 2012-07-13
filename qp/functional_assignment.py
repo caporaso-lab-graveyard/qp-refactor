@@ -11,9 +11,9 @@ __maintainer__ = "Greg Caporaso"
 __email__ = "gregcaporaso@gmail.com"
 __status__ = "Development"
 
-from qp.pick_otus_uclust_ref import PickOtusUclustRef
+from qp.pick_otus import ParallelPickOtus
 
-class FunctionAssignerUsearch(PickOtusUclustRef):
+class ParallelFunctionAssignerUsearch(ParallelPickOtus):
     _script_name = 'functional_assignment.py'
     _job_prefix = 'FUAS'
     
@@ -46,7 +46,7 @@ class FunctionAssignerUsearch(PickOtusUclustRef):
             result_filepaths += current_result_filepaths
             
             command = \
-             '%s %s -i %s -r %s -m usearch -o %s --min_percent_id %s --max_accepts %d --max_rejects %d --queryalnfract %f --targetalnfract %f --min_aligned_percent %f --evalue %e %s %s' %\
+             '%s %s -i %s -r %s -m usearch -o %s --min_percent_id %s --max_accepts %d --max_rejects %d --queryalnfract %f --targetalnfract %f --evalue %e %s %s' %\
              (command_prefix,
               self._script_name,
               fasta_fp,
@@ -57,7 +57,6 @@ class FunctionAssignerUsearch(PickOtusUclustRef):
               params['max_rejects'],
               params['queryalnfract'],
               params['targetalnfract'],
-              params['min_aligned_percent'],
               params['evalue'],
               rename_command,
               command_suffix)
@@ -70,8 +69,7 @@ class FunctionAssignerUsearch(PickOtusUclustRef):
                               input_file_basename,
                               job_result_filepaths,
                               output_dir,
-                              merge_map_filepath,
-                              failures=False):
+                              merge_map_filepath):
         """ 
         """
         f = open(merge_map_filepath,'w')
@@ -80,17 +78,11 @@ class FunctionAssignerUsearch(PickOtusUclustRef):
         log_fps = []
         failures_fps = []
     
-        if not failures:
-            out_filepaths = [
-             '%s/%s_fmap.txt' % (output_dir,input_file_basename),
-             '%s/%s_fmap.log' % (output_dir,input_file_basename)]
-            in_filepaths = [otus_fps,log_fps]
-        else:
-            out_filepaths = [
-             '%s/%s_fmap.txt' % (output_dir,input_file_basename),
-             '%s/%s_fmap.log' % (output_dir,input_file_basename),
-             '%s/%s_failures.txt' % (output_dir,input_file_basename)]
-            in_filepaths = [otus_fps,log_fps,failures_fps]
+        out_filepaths = [
+         '%s/%s_fmap.txt' % (output_dir,input_file_basename),
+         '%s/%s_fmap.log' % (output_dir,input_file_basename),
+         '%s/%s_failures.txt' % (output_dir,input_file_basename)]
+        in_filepaths = [otus_fps,log_fps,failures_fps]
     
         for fp in job_result_filepaths:
             if fp.endswith('_fmap.txt'):

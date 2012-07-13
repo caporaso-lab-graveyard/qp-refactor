@@ -16,13 +16,13 @@ from glob import glob
 from os.path import exists, join
 from cogent.util.unit_test import TestCase, main
 from cogent.util.misc import remove_files, create_dir
-from qp.pick_otus import PickOtusUclustRef
+from qp.pick_otus import ParallelPickOtusUclustRef
 from qiime.util import (get_qiime_temp_dir, 
                         get_tmp_filename)
 from qiime.test import initiate_timeout, disable_timeout
 from qiime.parse import parse_otu_map
 
-class PickOtusUclustRefTests(TestCase):
+class ParallelPickOtusUclustRefTests(TestCase):
     
     def setUp(self):
         """ """
@@ -82,7 +82,7 @@ class PickOtusUclustRefTests(TestCase):
     
     def test_parallel_pick_otus_uclust_ref(self):
         """ parallel_pick_otus_uclust_ref functions as expected """
-        app = PickOtusUclustRef()
+        app = ParallelPickOtusUclustRef()
         r = app(self.inseqs1_fp,
                 self.test_out,
                 self.params,

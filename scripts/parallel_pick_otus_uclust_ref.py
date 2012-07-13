@@ -15,7 +15,7 @@ __status__ = "Development"
 from qiime.util import (parse_command_line_parameters,
                         get_options_lookup,
                         make_option)
-from qp.pick_otus_uclust_ref import PickOtusUclustRef
+from qp.pick_otus_uclust_ref import ParallelPickOtusUclustRef
 
 
 ############################
@@ -104,7 +104,8 @@ def main():
     params = eval(str(opts))
     params['stable_sort'] = not opts.suppress_uclust_stable_sort
     
-    parallel_runner = PickOtusUclustRef(cluster_jobs_fp=opts.cluster_jobs_fp,
+    parallel_runner = ParallelPickOtusUclustRef(
+                                        cluster_jobs_fp=opts.cluster_jobs_fp,
                                         jobs_to_start=opts.jobs_to_start,
                                         retain_temp_files=opts.retain_temp_files,
                                         suppress_polling=opts.suppress_polling,

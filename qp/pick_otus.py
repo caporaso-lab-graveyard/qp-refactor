@@ -11,17 +11,23 @@ __maintainer__ = "Greg Caporaso"
 __email__ = "gregcaporaso@gmail.com"
 __status__ = "Development"
 
+from cogent.app.formatdb import build_blast_db_from_fasta_path
 from qp.util import ParallelWrapper
 from qiime.parallel.poller import basic_process_run_results_f
 
 class ParallelPickOtus(ParallelWrapper):
+    _script_name = "pick_otus.py"
+    _job_prefix = 'POTU'
+    _input_splitter = ParallelWrapper._split_fasta
+    _process_run_results_f =\
+         'qp.pick_otus.parallel_pick_otus_process_run_results_f'
     
     def _get_poller_command(self,
-                               expected_files_filepath,
-                               merge_map_filepath,
-                               deletion_list_filepath,
-                               command_prefix='/bin/bash; ',
-                               command_suffix='; exit'):
+                            expected_files_filepath,
+                            merge_map_filepath,
+                            deletion_list_filepath,
+                            command_prefix='/bin/bash; ',
+                            command_suffix='; exit'):
         """Generate command to initiate a poller to monitior/process completed runs
         """
 
@@ -78,13 +84,7 @@ class ParallelPickOtus(ParallelWrapper):
             f.write('\n')
         f.close()
 
-
-class PickOtusUclustRef(ParallelPickOtus):
-    _script_name = "pick_otus.py"
-    _job_prefix = 'POTU'
-    _input_splitter = ParallelWrapper._split_fasta
-    _process_run_results_f =\
-         'qp.pick_otus.parallel_uclust_ref_process_run_results_f'
+class ParallelPickOtusUclustRef(ParallelPickOtus):
     
     def _identify_files_to_remove(self,job_result_filepaths,params):
         """ Select the files to remove: by default remove all files
@@ -144,7 +144,6 @@ class PickOtusUclustRef(ParallelPickOtus):
         else:
             save_uc_files_str = '-d'
         
-    
         # Iterate over the input files
         for i,fasta_fp in enumerate(fasta_fps):
             # Each run ends with moving the output file from the tmp dir to
@@ -175,12 +174,67 @@ class PickOtusUclustRef(ParallelPickOtus):
               rename_command,
               command_suffix)
 
+            commands.append(command)
+
+        return commands, result_filepaths
+
+class ParallelPickOtusBlast(ParallelPickOtus):
+
+    def _precommand_initiation(self,input_fp,output_dir,params):
+        if not params['blast_db']:        
+            # Build the blast database from the reference_seqs_fp -- all procs
+            # will then access one db rather than create one per proc
+            blast_db, db_files_to_remove = \
+                 build_blast_db_from_fasta_path(params['refseqs_fp'])
+            self.files_to_remove += db_files_to_remove
+            params['blast_db'] = blast_db
+
+    def _get_job_commands(self,
+                          fasta_fps,
+                          output_dir,
+                          params,
+                          job_prefix,
+                          working_dir,
+                          command_prefix='/bin/bash; ',
+                          command_suffix='; exit'):
+        """Generate pick_otus commands which should be submitted to cluster
+        """
+        # Create basenames for each of the output files. These will be filled
+        # in to create the full list of files created by all of the runs.
+        out_filenames = [job_prefix + '.%d_otus.log', 
+                         job_prefix + '.%d_otus.txt']
+    
+        # Create lists to store the results
+        commands = []
+        result_filepaths = []
+    
+        # Iterate over the input files
+        for i,fasta_fp in enumerate(fasta_fps):
+            # Each run ends with moving the output file from the tmp dir to
+            # the output_dir. Build the command to perform the move here.
+            rename_command, current_result_filepaths = self._get_rename_command(\
+             [fn % i for fn in out_filenames],working_dir,output_dir)
+            result_filepaths += current_result_filepaths
+            
+            command = \
+             '%s %s -i %s -b %s -m blast -o %s -e %s -s %s --min_aligned_percent %s %s %s' %\
+             (command_prefix,
+              self._script_name,
+              fasta_fp,
+              params['blast_db'],
+              working_dir,
+              params['max_e_value'],
+              params['similarity'],
+              params['min_aligned_percent'],
+              rename_command,
+              command_suffix)
           
             commands.append(command)
 
         return commands, result_filepaths
 
-def parallel_uclust_ref_process_run_results_f(f):
+
+def parallel_pick_otus_process_run_results_f(f):
     """ Copy each list of infiles to each outfile and delete infiles
     
         f: file containing one set of mapping instructions per line
@@ -196,9 +250,13 @@ def parallel_uclust_ref_process_run_results_f(f):
     """
     lines = list(f)
     # handle catting of log files and failure files
-    basic_process_run_results_f([lines[1],lines[2]])
-    # # handle catting of failures files
-    # basic_process_run_results_f([lines[2]])
+    basic_process_run_results_f([lines[1]])
+    try:
+        basic_process_run_results_f([lines[2]])
+    except IndexError:
+        # no failures files were generated (BLAST
+        # doesn't create these)
+        pass
     # handle merging of otu maps
     fields = lines[0].strip().split()
     infiles_list = fields[:-1]

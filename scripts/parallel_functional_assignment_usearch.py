@@ -14,14 +14,14 @@ __status__ = "Development"
 from qiime.util import (parse_command_line_parameters,
                         get_options_lookup,
                         make_option)
-from qp.functional_assignment_usearch import FunctionAssignerUsearch
+from qp.functional_assignment import ParallelFunctionAssignerUsearch
 
 options_lookup = get_options_lookup()
 
 script_info = {}
 script_info['brief_description'] = ""
 script_info['script_description'] = ""
-script_info['script_usage'] = [("","","")]
+script_info['script_usage'] = [("","","%prog -i $PWD/query_nt.fasta -r $PWD/refseqs_pr.fasta -o $PWD/usearch_assigned_function")]
 script_info['output_description']= ""
 script_info['required_options'] = [
     make_option('-i', '--input_seqs_filepath',type='existing_filepath',
@@ -77,7 +77,7 @@ def main():
     params['save_uc_files'] = True
 
 
-    parallel_runner = FunctionAssignerUsearch(
+    parallel_runner = ParallelFunctionAssignerUsearch(
                                         cluster_jobs_fp=opts.cluster_jobs_fp,
                                         jobs_to_start=opts.jobs_to_start,
                                         retain_temp_files=opts.retain_temp_files,

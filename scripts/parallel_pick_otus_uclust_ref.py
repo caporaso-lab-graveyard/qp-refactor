@@ -15,7 +15,7 @@ __status__ = "Development"
 from qiime.util import (parse_command_line_parameters,
                         get_options_lookup,
                         make_option)
-from qp.pick_otus_uclust_ref import ParallelPickOtusUclustRef
+from qp.pick_otus import ParallelPickOtusUclustRef
 
 
 ############################

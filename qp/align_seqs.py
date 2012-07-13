@@ -12,6 +12,7 @@ __email__ = "gregcaporaso@gmail.com"
 __status__ = "Development"
 
 from cogent.app.formatdb import build_blast_db_from_fasta_path
+from qiime.align_seqs import compute_min_alignment_length
 from qp.util import ParallelWrapper
 
 class ParallelAlignSeqsPyNast(ParallelWrapper):
@@ -24,9 +25,13 @@ class ParallelAlignSeqsPyNast(ParallelWrapper):
             # Build the blast database from the reference_seqs_fp -- all procs
             # will then access one db rather than create one per proc
             blast_db, db_files_to_remove = \
-                 build_blast_db_from_fasta_path(params['template_aln_fp'])
+                 build_blast_db_from_fasta_path(params['template_fp'])
             self.files_to_remove += db_files_to_remove
             params['blast_db'] = blast_db
+        
+        if params['min_length'] < 0:
+            params['min_length'] = compute_min_alignment_length(\
+                                    open(input_fp,'U'))
 
     def _get_job_commands(self,
                           fasta_fps,
@@ -76,7 +81,7 @@ class ParallelAlignSeqsPyNast(ParallelWrapper):
               blast_str,
               params['min_percent_id'],
               params['min_length'],
-              params['template_aln_fp'],\
+              params['template_fp'],\
               params['pairwise_alignment_method'],
               working_dir,
               fasta_fp,

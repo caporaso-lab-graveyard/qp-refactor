@@ -74,7 +74,7 @@ class ParallelAlignSeqsPyNastTests(ParallelAlignSeqsTests):
         params = {
          'min_percent_id':0.75,
          'min_length':15,
-         'template_aln_fp':self.template_fp,
+         'template_fp':self.template_fp,
          'pairwise_alignment_method':'uclust',
          'blast_db':None
         }

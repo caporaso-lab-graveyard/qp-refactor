@@ -157,8 +157,7 @@ class ParallelWrapper(object):
         self._write_merge_map_file(input_file_basename,
                                    job_result_filepaths,
                                    output_dir,
-                                   merge_map_filepath,
-                                   failures=True)
+                                   merge_map_filepath)
         self.files_to_remove.append(merge_map_filepath)
 
         # Create the filepath listing the temporary files to be deleted,
@@ -207,6 +206,14 @@ class ParallelWrapper(object):
     
     def _precommand_initiation(self,input_fp,output_dir,params):
         pass
+    
+    def _write_merge_map_file(self,
+                              input_file_basename,
+                              job_result_filepaths,
+                              output_dir,
+                              merge_map_filepath):
+        raise NotImplementedError, "Subclass must override _write_merge_map_file"
+
 
     def _get_job_commands(self,
                           input_fps,

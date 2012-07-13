@@ -46,8 +46,7 @@ class ParallelPickOtus(ParallelWrapper):
                               input_file_basename,
                               job_result_filepaths,
                               output_dir,
-                              merge_map_filepath,
-                              failures=False):
+                              merge_map_filepath):
         """ 
         """
         f = open(merge_map_filepath,'w')
@@ -55,7 +54,15 @@ class ParallelPickOtus(ParallelWrapper):
         otus_fps = []
         log_fps = []
         failures_fps = []
-    
+        
+        # determine if the otu picking method generates
+        # failures files
+        failures = False
+        for fp in job_result_filepaths:
+            if fp.endswith('_failures.txt'):
+                failures = True
+                break
+        
         if not failures:
             out_filepaths = [
              '%s/%s_otus.txt' % (output_dir,input_file_basename),

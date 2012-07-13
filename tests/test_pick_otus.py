@@ -16,7 +16,7 @@ from glob import glob
 from os.path import exists, join
 from cogent.util.unit_test import TestCase, main
 from cogent.util.misc import remove_files, create_dir
-from qp.pick_otus_uclust_ref import PickOtusUclustRef
+from qp.pick_otus import PickOtusUclustRef
 from qiime.util import (get_qiime_temp_dir, 
                         get_tmp_filename)
 from qiime.test import initiate_timeout, disable_timeout

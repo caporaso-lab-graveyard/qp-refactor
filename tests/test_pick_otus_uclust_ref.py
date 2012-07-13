@@ -22,8 +22,6 @@ from qiime.util import (get_qiime_temp_dir,
 from qiime.test import initiate_timeout, disable_timeout
 from qiime.parse import parse_otu_map
 
-
-
 class PickOtusUclustRefTests(TestCase):
     
     def setUp(self):
@@ -69,7 +67,7 @@ class PickOtusUclustRefTests(TestCase):
           'save_uc_files':True
         }
         
-        initiate_timeout()
+        initiate_timeout(60)
 
     
     def tearDown(self):

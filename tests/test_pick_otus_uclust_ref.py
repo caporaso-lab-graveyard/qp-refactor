@@ -11,7 +11,6 @@ __maintainer__ = "Greg Caporaso"
 __email__ = "gregcaporaso@gmail.com"
 __status__ = "Development"
 
-import signal
 from shutil import rmtree
 from glob import glob
 from os.path import exists, join
@@ -20,21 +19,10 @@ from cogent.util.misc import remove_files, create_dir
 from qp.pick_otus_uclust_ref import PickOtusUclustRef
 from qiime.util import (get_qiime_temp_dir, 
                         get_tmp_filename)
+from qiime.test import initiate_timeout, disable_timeout
 from qiime.parse import parse_otu_map
 
-## The test case timing code included in this file is adapted from
-## recipes provided at:
-##  http://code.activestate.com/recipes/534115-function-timeout/
-##  http://stackoverflow.com/questions/492519/timeout-on-a-python-function-call
-class TimeExceededError(Exception):
-    pass
 
-allowed_seconds_per_test = 60
-
-def timeout(signum, frame):
-    raise TimeExceededError,\
-     "Test failed to run in allowed time (%d seconds)."\
-      % allowed_seconds_per_test
 
 class PickOtusUclustRefTests(TestCase):
     
@@ -81,24 +69,18 @@ class PickOtusUclustRefTests(TestCase):
           'save_uc_files':True
         }
         
-        signal.signal(signal.SIGALRM, timeout)
-        # set the 'alarm' to go off in allowed_seconds seconds
-        signal.alarm(allowed_seconds_per_test)
+        initiate_timeout()
+
     
     def tearDown(self):
         """ """
-        # turn off the alarm
-        signal.alarm(0)
+        disable_timeout()
         remove_files(self.files_to_remove)
         # remove directories last, so we don't get errors
         # trying to remove files which may be in the directories
         for d in self.dirs_to_remove:
             if exists(d):
                 rmtree(d)
-    
-    def test_pass(self):
-        """just checking that alarm works as expected """
-        pass
     
     def test_parallel_pick_otus_uclust_ref(self):
         """ parallel_pick_otus_uclust_ref functions as expected """

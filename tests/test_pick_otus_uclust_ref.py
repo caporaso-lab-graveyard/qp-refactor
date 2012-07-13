@@ -20,6 +20,7 @@ from cogent.util.misc import remove_files, create_dir
 from qp.pick_otus_uclust_ref import PickOtusUclustRef
 from qiime.util import (get_qiime_temp_dir, 
                         get_tmp_filename)
+from qiime.parse import parse_otu_map
 
 ## The test case timing code included in this file is adapted from
 ## recipes provided at:
@@ -108,13 +109,11 @@ class PickOtusUclustRefTests(TestCase):
                 job_prefix='PTEST',
                 poll_directly=True,
                 suppress_submit_jobs=False)
-        function_map_fp = glob(join(self.test_out,'*otus.txt'))[0]
-        i = 0
-        d = {}
-        for line in open(function_map_fp,'U'):
-            d[line.split()[0]] = None
-            i += 1
-        self.assertEqual(i,len(d))
+        otu_map_fp = glob(join(self.test_out,'*otus.txt'))[0]
+        otu_map = parse_otu_map(open(otu_map_fp,'U'))
+        # some basic sanity checks: at least one OTU per reference sequence
+        self.assertTrue(len(otu_map[0])>5)
+        self.assertEqual(set(otu_map[2]),set(['r1','r2','r3','r4','r5']))
         
         
 

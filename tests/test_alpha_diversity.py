@@ -57,7 +57,6 @@ class ParallelAlphaDiversityTests(TestCase):
         self.files_to_remove.append(self.tree_fp)
         
         initiate_timeout(60)
-
     
     def tearDown(self):
         """ """

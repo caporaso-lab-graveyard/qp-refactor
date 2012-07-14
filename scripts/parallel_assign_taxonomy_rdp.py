@@ -17,7 +17,7 @@ from os.path import join
 from qiime.util import (get_options_lookup, get_qiime_scripts_dir,
                         load_qiime_config, make_option,
                         parse_command_line_parameters)
-from qp.util import ParallelRdpTaxonomyAssigner
+from qp.parallel_assign_taxonomy import ParallelRdpTaxonomyAssigner
 
 qiime_config = load_qiime_config()
 options_lookup = get_options_lookup()

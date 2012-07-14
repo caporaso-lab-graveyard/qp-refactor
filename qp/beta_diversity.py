@@ -53,11 +53,6 @@ class ParallelBetaDiversitySingle(ParallelBetaDiversity):
     
         merge_map_f.close()
 
-    # def get_job_commands_single_otu_table(
-    #     python_exe_fp,beta_diversity_fp,tree_fp,job_prefix,metrics,input_fp,
-    #     output_dir,working_dir,jobs_to_start,command_prefix=None,
-    #     command_suffix=None, full_tree=False):
-
     def _get_job_commands(self,
                           input_fp,
                           output_dir,
@@ -126,41 +121,43 @@ class ParallelBetaDiversitySingle(ParallelBetaDiversity):
 
 class ParallelBetaDiversityMultiple(ParallelBetaDiversity):
 
-    def get_job_commands_multiple_otu_tables(
-        python_exe_fp,beta_diversity_fp,tree_fp,job_prefix,metrics,input_fps,
-        output_dir,working_dir,command_prefix=None,command_suffix=None,
-        full_tree=False):
+    def _get_job_commands(self,
+                          input_fps,
+                          output_dir,
+                          params,
+                          job_prefix,
+                          working_dir,
+                          command_prefix='/bin/bash; ',
+                          command_suffix='; exit'):
         """Generate beta diversity to split multiple OTU tables to multiple jobs
         """
-
-        command_prefix = command_prefix or '/bin/bash; '
-        command_suffix = command_suffix or '; exit'
     
-        if full_tree:
+        if params['full_tree']:
             full_tree_str = '-f'
         else:
             full_tree_str = ''
     
         commands = []
         result_filepaths = []
-    
+        
+        metrics = params['metrics']
+        
         for input_fp in input_fps:
             input_path, input_fn = split(input_fp)
             input_basename, input_ext = splitext(input_fn)
-            output_fns = ['%s_%s.txt' % (metric, input_basename) \
-             for metric in metrics.split(',')]
-            rename_command, current_result_filepaths = get_rename_command(\
+            output_fns = \
+             ['%s_%s.txt' % (metric, input_basename) for metric in metrics.split(',')]
+            rename_command, current_result_filepaths = self._get_rename_command(\
              output_fns,working_dir,output_dir)
             result_filepaths += current_result_filepaths
         
-            command = '%s %s %s -i %s -o %s -t %s -m %s %s %s %s' %\
-             (command_prefix,\
-              python_exe_fp,\
-              beta_diversity_fp,\
+            command = '%s %s -i %s -o %s -t %s -m %s %s %s %s' %\
+             (command_prefix,
+              self._script_name,
               input_fp,
-              working_dir + '/',
-              tree_fp,
-              metrics,
+              working_dir,
+              params['tree_path'],
+              params['metrics'],
               full_tree_str,
               rename_command,
               command_suffix)
@@ -183,45 +180,11 @@ class ParallelBetaDiversityMultiple(ParallelBetaDiversity):
           expected_files_filepath,
           merge_map_filepath,
           deletion_list_filepath,
-          seconds_to_sleep,
+          self._seconds_to_sleep,
           'qiime.parallel.beta_diversity.parallel_beta_diversity_process_run_results_f',
           command_suffix)
       
         return result, []
-    
-    def _assemble_distance_matrix(self,
-                                  dm_components):
-        """ assemble distance matrix components into a complete dm string
-    
-        """
-        data = {}
-        # iterate over compenents
-        for c in dm_components:
-            # create a blank list to store the column ids
-            col_ids = []
-            # iterate over lines
-            for line in c:
-                # split on tabs remove leading and trailing whitespace
-                fields = line.strip().split()
-                if fields:
-                    # if no column ids seen yet, these are them
-                    if not col_ids:
-                        col_ids = fields
-                    # otherwise this is a data row so add it to data
-                    else:
-                        sid = fields[0]
-                        data[sid] = dict(zip(col_ids,fields[1:]))
-
-        # grab the col/row ids as a list so it's ordered
-        labels = data.keys()
-        # create an empty list to build the dm
-        dm = []
-        # construct the dm one row at a time
-        for l1 in labels:
-            dm.append([data[l1][l2] for l2 in labels])
-        # create the dm string and return it
-        dm = format_distance_matrix(labels,dm)
-        return dm
 
 def parallel_beta_diversity_process_run_results_f(f):
     """ Handles re-assembling of an OTU table from component vectors
@@ -239,3 +202,36 @@ def parallel_beta_diversity_process_run_results_f(f):
         output_f.close()
     
     return True
+
+def assemble_distance_matrix(dm_components):
+    """ assemble distance matrix components into a complete dm string
+
+    """
+    data = {}
+    # iterate over compenents
+    for c in dm_components:
+        # create a blank list to store the column ids
+        col_ids = []
+        # iterate over lines
+        for line in c:
+            # split on tabs remove leading and trailing whitespace
+            fields = line.strip().split()
+            if fields:
+                # if no column ids seen yet, these are them
+                if not col_ids:
+                    col_ids = fields
+                # otherwise this is a data row so add it to data
+                else:
+                    sid = fields[0]
+                    data[sid] = dict(zip(col_ids,fields[1:]))
+
+    # grab the col/row ids as a list so it's ordered
+    labels = data.keys()
+    # create an empty list to build the dm
+    dm = []
+    # construct the dm one row at a time
+    for l1 in labels:
+        dm.append([data[l1][l2] for l2 in labels])
+    # create the dm string and return it
+    dm = format_distance_matrix(labels,dm)
+    return dm

@@ -11,6 +11,7 @@ __maintainer__ = "Greg Caporaso"
 __email__ = "gregcaporaso@gmail.com"
 __status__ = "Development"
 
+from glob import glob
 from os.path import isfile
 from qiime.util import parse_command_line_parameters
 from qiime.util import make_option
@@ -26,7 +27,8 @@ script_info={}
 script_info['brief_description']="""Parallel beta diversity"""
 script_info['script_description']="""This script performs like the beta_diversity.py script, but is intended to make use of multicore/multiprocessor environments to perform analyses in parallel."""
 script_info['script_usage']=[]
-script_info['script_usage'].append(("""Apply beta_diversity.py in parallel""","""Apply the unweighted_unifrac and weighted_unifrac metrics (modify with -m) to all otu tables in rarefied_otu_tables (-i) and write the resulting output files to bdiv/ (-o, will be created if it doesn't exist). Use the rep_set.tre (-t) to compute phylogenetic diversity metrics. ALWAYS SPECIFY ABSOLUTE FILE PATHS (absolute path represented here as $PWD, but will generally look something like /home/ubuntu/my_analysis/).""","""%prog -i $PWD/rarefied_otu_tables/ -o $PWD/bdiv/ -t $PWD/rep_set.tre"""))
+script_info['script_usage'].append(("""Apply beta_diversity.py in parallel to multiple otu tables""","""Apply the unweighted_unifrac and weighted_unifrac metrics (modify with -m) to all otu tables in rarefied_otu_tables (-i) and write the resulting output files to bdiv/ (-o, will be created if it doesn't exist). Use the rep_set.tre (-t) to compute phylogenetic diversity metrics. ALWAYS SPECIFY ABSOLUTE FILE PATHS (absolute path represented here as $PWD, but will generally look something like /home/ubuntu/my_analysis/).""","""%prog -i $PWD/rarefied_otu_tables/ -o $PWD/bdiv/ -t $PWD/rep_set.tre"""))
+script_info['script_usage'].append(("""Apply beta_diversity.py in parallel to a single otu table""",""" ""","""%prog -i $PWD/otu_table.biom -o $PWD/bdiv_single/ -t $PWD/rep_set.tre"""))
 
 script_info['output_description']="""The output of %prog is a folder containing text files, each a distance matrix between samples."""
 

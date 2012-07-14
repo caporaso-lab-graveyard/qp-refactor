@@ -66,7 +66,6 @@ script_info['optional_options'] = [\
  options_lookup['cluster_jobs_fp'],\
  options_lookup['suppress_polling'],\
  options_lookup['job_prefix'],\
- options_lookup['python_exe_fp'],\
  options_lookup['seconds_to_sleep']\
 ]
 

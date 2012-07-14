@@ -68,6 +68,7 @@ class ParallelFunctionAssignerUsearch(ParallelPickOtus):
     def _write_merge_map_file(self,
                               input_file_basename,
                               job_result_filepaths,
+                              params,
                               output_dir,
                               merge_map_filepath):
         """ 

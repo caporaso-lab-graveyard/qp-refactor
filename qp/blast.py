@@ -10,6 +10,7 @@ __maintainer__ = "Jai Ram Rideout"
 __email__ = "jai.rideout@gmail.com"
 __status__ = "Development"
 
+from os.path import split, splitext
 from cogent.app.formatdb import build_blast_db_from_fasta_path
 from qiime.util import load_qiime_config, get_options_lookup
 
@@ -55,10 +56,19 @@ class ParallelBlaster(ParallelWrapper):
         for i, fasta_fp in enumerate(fasta_fps):
             # Each run ends with moving the output file from the tmp dir to
             # the output_dir. Build the command to perform the move here.
-            rename_command, current_result_filepaths = \
-                    self._get_rename_command([fn % i for fn in out_filenames],
-                                             working_dir, output_dir)
-            result_filepaths += current_result_filepaths
+            #rename_command, current_result_filepaths = \
+            #        self._get_rename_command([fn % i for fn in out_filenames],
+            #                                 working_dir, output_dir)
+            #result_filepaths += current_result_filepaths
+
+            # TODO should this be put in self._get_rename_command()?
+            infile_basename = splitext(split(fasta_fp)[1])[0]
+            working_outfile_path = '%s/%s_blast_out.txt' %\
+              (working_dir,infile_basename)
+            outfile_path = '%s/%s_blast_out.txt' % (output_dir,infile_basename)
+            rename_command = '; mv %s %s' % (working_outfile_path,
+                                             outfile_path)
+            result_filepaths.append(outfile_path)
 
             command = '%s %s -p blastn -m 9 -e %s -F %s -W %s -b %s -i %s -d %s > %s %s %s' % \
              (command_prefix,
@@ -69,7 +79,7 @@ class ParallelBlaster(ParallelWrapper):
               params['num_hits'], 
               fasta_fp,
               params['blast_db'],
-              working_dir,
+              working_outfile_path,
               rename_command,
               command_suffix)
             commands.append(command)

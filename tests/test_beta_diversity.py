@@ -131,7 +131,7 @@ class ParallelBetaDiversitySingleTests(ParallelBetaDiversityTests):
 class ParallelBetaDiversityMultipleTests(ParallelBetaDiversityTests):
 
     def test_parallel_beta_diversity(self):
-        """ parallel beta diveristy functions in single file mode """
+        """ parallel beta diveristy functions in multiple file mode """
         params = {'metrics':'weighted_unifrac',
                   'tree_path':self.tree_fp,
                   'jobs_to_start':2,
@@ -148,6 +148,35 @@ class ParallelBetaDiversityMultipleTests(ParallelBetaDiversityTests):
         dm_sample_ids_l = []
         for input_fp, dm_fp in zip(self.input1_fps,
                                  glob(join(self.test_out,'*weighted_unifrac*'))):
+            input_sample_ids_l.append(parse_biom_table(open(input_fp,'U')).SampleIds)
+            dm_sample_ids_l.append(parse_distmat(open(dm_fp))[0])
+        dm_sample_ids_l.sort()
+        input_sample_ids_l.sort()
+        self.assertEqual(dm_sample_ids_l,input_sample_ids_l)
+        # just confirming that there are different sample ids in
+        # the two sets of results
+        self.assertNotEqual(dm_sample_ids_l[0],dm_sample_ids_l[1])
+
+
+    def test_parallel_beta_diversity_wo_tree(self):
+        """ parallel beta diveristy functions in multiple file mode without tree 
+        """
+        params = {'metrics':'bray_curtis',
+                  'tree_path':None,
+                  'jobs_to_start':2,
+                  'full_tree':False
+                  }
+        app = ParallelBetaDiversityMultiple()
+        r = app(self.input1_fps,
+                self.test_out,
+                params,
+                job_prefix='BTEST',
+                poll_directly=True,
+                suppress_submit_jobs=False)
+        input_sample_ids_l = []
+        dm_sample_ids_l = []
+        for input_fp, dm_fp in zip(self.input1_fps,
+                                 glob(join(self.test_out,'*bray_curtis*'))):
             input_sample_ids_l.append(parse_biom_table(open(input_fp,'U')).SampleIds)
             dm_sample_ids_l.append(parse_distmat(open(dm_fp))[0])
         dm_sample_ids_l.sort()

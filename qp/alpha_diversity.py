@@ -36,21 +36,27 @@ class ParallelAlphaDiversity(ParallelWrapper):
         """
         commands = []
         result_filepaths = []
-    
+        
+        if params['tree_path']:
+            tree_str = '-t %s' % params['tree_path']
+        else:
+            tree_str = ''
+        
         for input_fp in input_fps:
             input_path, input_fn = split(input_fp)
             output_fn = 'alpha_%s' % input_fn
+            output_fn = output_fn.replace('.biom','.txt')
             temp_fp = join(working_dir,output_fn)
             rename_command, current_result_filepaths =\
               self._get_rename_command([output_fn],working_dir,output_dir)
             result_filepaths += current_result_filepaths
         
-            command = '%s %s -i %s -o %s -t %s -m %s %s %s' %\
+            command = '%s %s -i %s -o %s %s -m %s %s %s' %\
              (command_prefix,\
               self._script_name,
               input_fp,
               temp_fp,
-              params['tree_path'],
+              tree_str,
               params['metrics'],
               rename_command,
               command_suffix)

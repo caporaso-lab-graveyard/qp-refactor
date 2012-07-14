@@ -76,6 +76,11 @@ class ParallelBetaDiversitySingle(ParallelBetaDiversity):
         else:
             full_tree_str = ''
         
+        if params['tree_path']:
+            tree_str = '-t %s' % params['tree_path']
+        else:
+            tree_str = ''
+        
         metrics = params['metrics']
         
         # this is a little bit of an abuse of _merge_to_n_commands, so may
@@ -102,11 +107,11 @@ class ParallelBetaDiversitySingle(ParallelBetaDiversity):
 
             result_filepaths += current_result_filepaths
 
-            bdiv_command = '%s -i %s -o %s -t %s -m %s %s -r %s' %\
+            bdiv_command = '%s -i %s -o %s %s -m %s %s -r %s' %\
              (self._script_name,\
               input_fp,
               working_dir_i,
-              params['tree_path'],
+              tree_str,
               params['metrics'],
               full_tree_str,
               sample_id_group)
@@ -136,7 +141,12 @@ class ParallelBetaDiversityMultiple(ParallelBetaDiversity):
             full_tree_str = '-f'
         else:
             full_tree_str = ''
-    
+        
+        if params['tree_path']:
+            tree_str = '-t %s' % params['tree_path']
+        else:
+            tree_str = ''
+            
         commands = []
         result_filepaths = []
         
@@ -151,12 +161,12 @@ class ParallelBetaDiversityMultiple(ParallelBetaDiversity):
              output_fns,working_dir,output_dir)
             result_filepaths += current_result_filepaths
         
-            command = '%s %s -i %s -o %s -t %s -m %s %s %s %s' %\
+            command = '%s %s -i %s -o %s %s -m %s %s %s %s' %\
              (command_prefix,
               self._script_name,
               input_fp,
               working_dir,
-              params['tree_path'],
+              tree_str,
               params['metrics'],
               full_tree_str,
               rename_command,

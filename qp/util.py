@@ -114,7 +114,8 @@ class ParallelWrapper(object):
          self._initialize_output_cleanup_files(job_result_filepaths,
                                                output_dir,
                                                working_dir,
-                                               input_file_basename)
+                                               input_file_basename,
+                                               params)
 
         # Set up poller apparatus if the user does not suppress polling
         if not self._suppress_polling:
@@ -159,12 +160,14 @@ class ParallelWrapper(object):
                                          job_result_filepaths,
                                          output_dir,
                                          working_dir,
-                                         input_file_basename):
+                                         input_file_basename,
+                                         params):
         # Write the mapping file which described how the output files from
         # each job should be merged into the final output files
         merge_map_filepath = '%s/merge_map.txt' % working_dir
         self._write_merge_map_file(input_file_basename,
                                    job_result_filepaths,
+                                   params,
                                    output_dir,
                                    merge_map_filepath)
         self.files_to_remove.append(merge_map_filepath)
@@ -219,6 +222,7 @@ class ParallelWrapper(object):
     def _write_merge_map_file(self,
                               input_file_basename,
                               job_result_filepaths,
+                              params,
                               output_dir,
                               merge_map_filepath):
         """ Create an empty file by default. Most subclasses will overwrite this 

@@ -25,7 +25,7 @@ from qiime.parallel.util import split_fasta, get_random_job_prefix, write_jobs_f
 from qiime.parallel.blast import get_commands
 from qiime.util import load_qiime_config, get_options_lookup
 
-from qp.util import ParallelBlaster
+from qp.blast import ParallelBlaster
 
 qiime_config = load_qiime_config()
 options_lookup = get_options_lookup()

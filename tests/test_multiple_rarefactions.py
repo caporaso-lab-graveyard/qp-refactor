@@ -71,7 +71,12 @@ class ParallelMultipleRarefactionsTests(TestCase):
                   'num_reps':2,
                   'suppress_lineages_included':False,
                   'subsample_multinomial':False}
-        r(self.input1_fp,self.test_out,params)
+        r(self.input1_fp,
+          self.test_out,
+          params,
+          job_prefix='RARIFTEST',
+          poll_directly=True,
+          suppress_submit_jobs=False)
         biom_tables = glob('%s/*biom' % self.test_out)
         self.assertEqual(len(biom_tables),20)
         biom_tables.sort()

@@ -17,6 +17,7 @@ from os import getenv
 from os.path import basename, exists, join
 from tempfile import NamedTemporaryFile
 from cogent import LoadSeqs
+from cogent.app.util import ApplicationError
 from cogent.util.unit_test import TestCase, main
 from cogent.util.misc import remove_files, create_dir
 from qp.assign_taxonomy import (ParallelBlastTaxonomyAssigner,

@@ -344,15 +344,18 @@ class ParallelWrapper(object):
         if n < 1:
             raise ValueError, "number of commands (n) must be an integer >= 1"
         
+        commands_to_filter = []
         if command_prefix == None:
             command_prefix = '/bin/bash ;'
+            commands_to_filter.append('/bin/bash')
         else:
-            command_prefix = command_prefix
+            commands_to_filter += [c.strip() for c in command_prefix.split(';') if c.strip()]
         
         if command_suffix == None:
             command_suffix = '; exit'
+            commands_to_filter.append('exit')
         else:
-            command_suffix = command_suffix
+            commands_to_filter += [c.strip() for c in command_suffix.split(';') if c.strip()]
         
         result = []
         commands_per_merged_command = int(ceil((len(commands)/n)))
@@ -360,7 +363,8 @@ class ParallelWrapper(object):
         cmd_counter = 0
         current_cmds = []
         for command in commands:
-            current_cmds.append(command)
+            subcommands = [c.strip() for c in command.split(';')]
+            current_cmds.append(delimiter.join([s for s in subcommands if s not in commands_to_filter]))
             cmd_counter += 1
         
             if cmd_counter == commands_per_merged_command:

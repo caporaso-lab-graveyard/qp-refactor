@@ -58,15 +58,14 @@ script_info['optional_options'] = [\
           type='float',help='Minimum percent '+\
           'sequence identity to closest blast hit to include sequence in'+\
           ' alignment [default: %default]',default=75.0),\
- options_lookup['jobs_to_start'],\
- options_lookup['poller_fp'],\
- options_lookup['retain_temp_files'],\
- options_lookup['suppress_submit_jobs'],\
- options_lookup['poll_directly'],\
- options_lookup['cluster_jobs_fp'],\
- options_lookup['suppress_polling'],\
- options_lookup['job_prefix'],\
- options_lookup['seconds_to_sleep']\
+ options_lookup['jobs_to_start'],
+ options_lookup['retain_temp_files'],
+ options_lookup['suppress_submit_jobs'],
+ options_lookup['poll_directly'],
+ options_lookup['cluster_jobs_fp'],
+ options_lookup['suppress_polling'],
+ options_lookup['job_prefix'],
+ options_lookup['seconds_to_sleep']
 ]
 
 script_info['version'] = __version__

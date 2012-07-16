@@ -20,7 +20,7 @@ class ParallelAlignSeqsPyNast(ParallelWrapper):
     _job_prefix = 'ALIGN'
     _input_splitter = ParallelWrapper._split_fasta
 
-    def _precommand_initiation(self,input_fp,output_dir,params):
+    def _precommand_initiation(self,input_fp,output_dir,working_dir,params):
         if not params['blast_db']:        
             # Build the blast database from the reference_seqs_fp -- all procs
             # will then access one db rather than create one per proc

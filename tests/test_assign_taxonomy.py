@@ -19,8 +19,8 @@ from tempfile import NamedTemporaryFile
 from cogent import LoadSeqs
 from cogent.util.unit_test import TestCase, main
 from cogent.util.misc import remove_files, create_dir
-from qp.parallel_assign_taxonomy import (ParallelBlastTaxonomyAssigner,
-                                         ParallelRdpTaxonomyAssigner)
+from qp.assign_taxonomy import (ParallelBlastTaxonomyAssigner,
+                                ParallelRdpTaxonomyAssigner)
 from qiime.util import (get_qiime_temp_dir,
                         get_tmp_filename)
 from qiime.test import initiate_timeout, disable_timeout

@@ -43,7 +43,6 @@ class ParallelBetaDiversityTests(TestCase):
         self.dirs_to_remove.append(self.test_out)
         create_dir(self.test_out)
         
-        # Create example input file
         self.input1_fp = get_tmp_filename(tmp_dir=self.test_out,
                                             prefix='qiime_inseqs',
                                             suffix='.fasta')
@@ -52,7 +51,6 @@ class ParallelBetaDiversityTests(TestCase):
         input1_f.close()
         self.files_to_remove.append(self.input1_fp)
 
-        # Create example input file
         self.input2_fp = get_tmp_filename(tmp_dir=self.test_out,
                                             prefix='qiime_inseqs',
                                             suffix='.fasta')

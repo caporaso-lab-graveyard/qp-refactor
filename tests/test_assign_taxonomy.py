@@ -53,13 +53,13 @@ class ParallelRdpTaxonomyAssignerTests(TestCase):
 
         self.id_to_taxonomy_file = NamedTemporaryFile(
             prefix='qiime_parallel_taxonomy_assigner_tests_id_to_taxonomy',
-            suffix='.txt')
+            suffix='.txt',dir=tmp_dir)
         self.id_to_taxonomy_file.write(rdp_id_to_taxonomy)
         self.id_to_taxonomy_file.seek(0)
 
         self.reference_seqs_file = NamedTemporaryFile(
             prefix='qiime_parallel_taxonomy_assigner_tests_ref_seqs',
-            suffix='.fasta')
+            suffix='.fasta',dir=tmp_dir)
         self.reference_seqs_file.write(rdp_reference_seqs)
         self.reference_seqs_file.seek(0)
 
@@ -134,13 +134,13 @@ class ParallelBlastTaxonomyAssignerTests(TestCase):
 
         self.id_to_taxonomy_file = NamedTemporaryFile(
             prefix='qiime_parallel_taxonomy_assigner_tests_id_to_taxonomy',
-            suffix='.txt')
+            suffix='.txt',dir=tmp_dir)
         self.id_to_taxonomy_file.write(blast_id_to_taxonomy)
         self.id_to_taxonomy_file.seek(0)
 
         self.reference_seqs_file = NamedTemporaryFile(
             prefix='qiime_parallel_taxonomy_assigner_tests_ref_seqs',
-            suffix='.fasta')
+            suffix='.fasta',dir=tmp_dir)
         self.reference_seqs_file.write(blast_reference_seqs.toFasta())
         self.reference_seqs_file.seek(0)
 

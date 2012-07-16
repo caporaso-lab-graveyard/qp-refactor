@@ -50,7 +50,7 @@ class ParallelBlasterTests(TestCase):
 
         self.reference_seqs_file = NamedTemporaryFile(
             prefix='qiime_parallel_blaster_tests_ref_seqs',
-            suffix='.fasta')
+            suffix='.fasta',dir=tmp_dir)
         self.reference_seqs_file.write(blast_ref_seqs)
         self.reference_seqs_file.seek(0)
 

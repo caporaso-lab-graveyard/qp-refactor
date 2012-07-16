@@ -48,7 +48,6 @@ script_info['optional_options'] = [\
  make_option('-m', '--metrics',
         help='metrics to use, comma delimited',
         default='PD_whole_tree,chao1,observed_species'),
- options_lookup['poller_fp'],
  options_lookup['retain_temp_files'],
  options_lookup['suppress_submit_jobs'],
  options_lookup['poll_directly'],

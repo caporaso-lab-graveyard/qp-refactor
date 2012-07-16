@@ -83,7 +83,6 @@ script_info['optional_options'] = [\
                     " integers]")),
         
  options_lookup['jobs_to_start'],
- options_lookup['poller_fp'],
  options_lookup['retain_temp_files'],
  options_lookup['suppress_submit_jobs'],
  options_lookup['poll_directly'],

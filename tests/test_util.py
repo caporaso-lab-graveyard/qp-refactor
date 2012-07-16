@@ -126,5 +126,17 @@ class ParallelWrapperTests(TestCase):
         expected = ['0,1','2,3','4,5','6,7','8,9']
         self.assertEqual(actual,expected)
 
+    def test_merge_to_n_commands_w_prefix(self):
+        """ _merge_to_n_commands functions as expected (w prefix/suffix)"""
+        commands = ['/bin/bash ; pick_otus.py -h ; exit',
+                    '/bin/bash;pick_otus.py -g;exit',
+                    '/bin/bash ; pick_otus.py -h ; exit ; /bin/bash ; pick_otus.py -w ; exit']
+        expected = ['/bin/bash ; pick_otus.py -h ; pick_otus.py -g ; pick_otus.py -h ; pick_otus.py -w ; exit']
+        
+        actual = self.pw._merge_to_n_commands(commands,2,command_prefix='/bin/bash ;',command_suffix='; exit')
+        self.assertEqual(actual,expected)
+        actual = self.pw._merge_to_n_commands(commands,2)
+        self.assertEqual(actual,expected)
+
 if __name__ == "__main__":
     main()

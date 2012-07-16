@@ -43,19 +43,17 @@ class ParallelBetaDiversityTests(TestCase):
         self.dirs_to_remove.append(self.test_out)
         create_dir(self.test_out)
         
-        # Create example input file
         self.input1_fp = get_tmp_filename(tmp_dir=self.test_out,
                                             prefix='qiime_inseqs',
-                                            suffix='.fasta')
+                                            suffix='.biom')
         input1_f = open(self.input1_fp,'w')
         input1_f.write(input1)
         input1_f.close()
         self.files_to_remove.append(self.input1_fp)
 
-        # Create example input file
         self.input2_fp = get_tmp_filename(tmp_dir=self.test_out,
                                             prefix='qiime_inseqs',
-                                            suffix='.fasta')
+                                            suffix='.biom')
         input2_f = open(self.input2_fp,'w')
         input2_f.write(input2)
         input2_f.close()
@@ -92,7 +90,7 @@ class ParallelBetaDiversitySingleTests(ParallelBetaDiversityTests):
         """ parallel beta diveristy functions in single file mode """
         params = {'metrics':'weighted_unifrac,unweighted_unifrac',
                   'tree_path':self.tree_fp,
-                  'jobs_to_start':2,
+                  'jobs_to_start':3,
                   'full_tree':False
                   }
         app = ParallelBetaDiversitySingle()
@@ -112,7 +110,7 @@ class ParallelBetaDiversitySingleTests(ParallelBetaDiversityTests):
         """ parallel beta diveristy functions in single file mode """
         params = {'metrics':'bray_curtis',
                   'tree_path':None,
-                  'jobs_to_start':2,
+                  'jobs_to_start':3,
                   'full_tree':False
                   }
         app = ParallelBetaDiversitySingle()
@@ -134,7 +132,7 @@ class ParallelBetaDiversityMultipleTests(ParallelBetaDiversityTests):
         """ parallel beta diveristy functions in multiple file mode """
         params = {'metrics':'weighted_unifrac',
                   'tree_path':self.tree_fp,
-                  'jobs_to_start':2,
+                  'jobs_to_start':3,
                   'full_tree':False
                   }
         app = ParallelBetaDiversityMultiple()
@@ -163,7 +161,7 @@ class ParallelBetaDiversityMultipleTests(ParallelBetaDiversityTests):
         """
         params = {'metrics':'bray_curtis',
                   'tree_path':None,
-                  'jobs_to_start':2,
+                  'jobs_to_start':3,
                   'full_tree':False
                   }
         app = ParallelBetaDiversityMultiple()
